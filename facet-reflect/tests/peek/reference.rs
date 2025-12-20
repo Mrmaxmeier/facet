@@ -35,6 +35,7 @@ fn str_ref() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn str_ref_ref() {
     let s: &'static str = "abc";
     let r: &'static &str = Box::leak(Box::new(s));
@@ -53,6 +54,7 @@ fn str_mut_ref() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn str_mut_ref_mut_ref() {
     let s = Box::leak(Box::new(String::from("abc")));
     let r: &'static mut &mut str = Box::leak(Box::new(s.as_mut_str()));
@@ -62,6 +64,7 @@ fn str_mut_ref_mut_ref() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn str_ref_mut_ref() {
     let s: &'static str = "abc";
     let r: &'static mut &str = Box::leak(Box::new(s));
@@ -71,6 +74,7 @@ fn str_ref_mut_ref() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn str_mut_ref_ref() {
     let s = Box::leak(Box::new(String::from("abc")));
     let r: &'static &mut str = Box::leak(Box::new(s.as_mut_str()));

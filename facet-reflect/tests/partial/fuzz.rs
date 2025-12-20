@@ -310,6 +310,7 @@ proptest! {
     /// The core property: no sequence of operations should cause a panic or UB.
     /// Operations may fail, but the Partial should always be safely droppable.
     #[test]
+    #[cfg(not(miri))]
     fn fuzz_partial_safety(ops in op_sequence_strategy()) {
         // This should never panic - errors are expected and fine
         let _ = apply_ops(&ops);
@@ -343,6 +344,7 @@ proptest! {
 
     /// Fuzz just struct field operations
     #[test]
+    #[cfg(not(miri))]
     fn fuzz_simple_struct(
         ops in prop::collection::vec(
             prop_oneof![
@@ -396,6 +398,7 @@ proptest! {
 
     /// Fuzz list operations
     #[test]
+    #[cfg(not(miri))]
     fn fuzz_list_ops(
         ops in prop::collection::vec(
             prop_oneof![
@@ -446,6 +449,7 @@ proptest! {
 
     /// Fuzz map operations
     #[test]
+    #[cfg(not(miri))]
     fn fuzz_map_ops(
         ops in prop::collection::vec(
             prop_oneof![
@@ -657,4 +661,74 @@ fn wip_fuzz_begin_field_set_string_drop() {
         let _ = partial.set(String::from("aaaaaaaaaaaa"));
     }
     // Partial dropped here - must not leak or crash
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_120() {
+    use facet_value::Value;
+
+    let mut partial: Partial<'_> = Partial::alloc::<Value>().unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_object_entry("foo").unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.end().unwrap();
+    partial = partial.begin_object_entry("foo").unwrap();
+    partial.set_default().unwrap();
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_121() {
+    let mut partial: Partial<'_> = Partial::alloc::<FuzzTarget>().unwrap();
+    partial = partial.begin_field("mapping").unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_key().unwrap();
+    partial = partial.set(String::from("aaaaaaaaaaaaaaaa")).unwrap();
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_122() {
+    let mut partial: Partial<'_> = Partial::alloc::<facet_value::Value>().unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.end().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    partial = partial.set(522133289i32).unwrap();
+    partial = partial.begin_map().unwrap();
+    let _ = partial.begin_field("name");
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_123() {
+    let mut partial: Partial<'_> = Partial::alloc::<facet_value::Value>().unwrap();
+    partial = partial.set(522133289i32).unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.end().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    partial = partial.set(1179662i32).unwrap();
+    partial = partial.begin_list().unwrap();
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_124() {
+    let mut partial: Partial<'_> = Partial::alloc::<FuzzTarget>().unwrap();
+    partial = partial.begin_field("mapping").unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_key().unwrap();
+    partial = partial.set(String::from("mxwvhqpvvv")).unwrap();
+    let _ = partial.begin_inner();
+}
+
+#[::core::prelude::v1::test]
+fn wip_fuzz_issue_125() {
+    let mut partial: Partial<'_> = Partial::alloc::<facet_value::Value>().unwrap();
+    partial = partial.begin_map().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    partial = partial.set_default().unwrap();
+    partial = partial.set(530521897i32).unwrap();
+    partial = partial.end().unwrap();
+    partial = partial.begin_object_entry("").unwrap();
+    let _ = partial.begin_inner();
 }

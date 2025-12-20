@@ -19,9 +19,7 @@ rustdoc-args = ["--html-in-header", "arborium-header.html"]
 [features]
 default = ["std"]
 std = ["alloc"] # Enable the standard library features
-alloc = [
-    "facet-core/alloc",
-] # Enable the allocation features
+alloc = ["facet-core/alloc"] # Enable the allocation features
 log = [
     "dep:log",
 ] # Enable logging of reflection operations (mostly for internal development)
@@ -54,15 +52,19 @@ miette = ["dep:miette"] # Enable Spanned<T> type for source span tracking
 camino = { workspace = true, optional = true } #unified
 facet-core = { path = "../facet-core", version = "0.32.3", default-features = false }
 log = { version = "0.4.27", optional = true }
-miette = { workspace = true, optional = true, features = ["derive", "fancy-no-backtrace"] } #unified
+miette = { workspace = true, optional = true, features = [
+    "derive",
+    "fancy-no-backtrace",
+] } #unified
 ulid = { workspace = true, optional = true } #unified
 uuid = { workspace = true, optional = true } #unified
 
 [dev-dependencies]
-eyre = { workspace = true } #unified
+eyre = { workspace = true }                                 #unified
 facet = { workspace = true, features = ["net", "nonzero"] }
 facet-testhelpers = { path = "../facet-testhelpers" }
-insta = { workspace = true } #unified
-log = { workspace = true } #unified
+facet-value = { path = "../facet-value" }
+insta = { workspace = true }                                #unified
+log = { workspace = true }                                  #unified
 proptest = "1.9"
-tempfile = { workspace = true } #unified
+tempfile = { workspace = true }                             #unified
